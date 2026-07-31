@@ -1,14 +1,16 @@
-# Welcome to your Lovable project
+# Design Launchpad
+
+Привет! Мы начинаем верстку сайта-портфолио для Senior Product Designer.  Прежде чем писать код, строго сохрани и используй эту спецификацию стилей, цветов, шрифтов и скруглений для ВСЕХ компонентов (во вложении brand-guide.md). Подключи шрифты Plus Jakarta Sans и Geist Mono через Google Fonts. Подтверди, что ты усвоил правила стиля, и напиши, что мы готовы собирать первый блок!
 
 This project was built with [Lovable](https://lovable.dev).
 
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/728bc379-ace5-4ba6-9986-110eaeab226a).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -20,10 +22,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
