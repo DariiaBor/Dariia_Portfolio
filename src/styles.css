@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -12,15 +13,11 @@
  *
  * The :root and .dark blocks define the actual color values using oklch.
  * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
  */
 
 @theme inline {
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -30,6 +27,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -63,6 +61,9 @@
   --color-invert-foreground: var(--invert-foreground);
   --color-invert-border: var(--invert-border);
 
+  /* Brand extension color (Lime & Blue) */
+  --color-brand-blue: var(--brand-blue);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -77,70 +78,73 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --shadow-card: 0 1px 2px oklch(0.208 0.04 265.8 / 0.04), 0 8px 24px -12px oklch(0.208 0.04 265.8 / 0.08);
-  --shadow-lift: 0 2px 4px oklch(0.208 0.04 265.8 / 0.05), 0 24px 48px -20px oklch(0.456 0.249 273.1 / 0.18);
+  --shadow-card: 0 1px 3px oklch(0.182 0.008 285 / 0.05), 0 10px 25px -5px oklch(0.182 0.008 285 / 0.05);
+  --shadow-lift: 0 4px 12px oklch(0.182 0.008 285 / 0.08), 0 20px 32px -12px oklch(0.182 0.008 285 / 0.12);
 }
 
 :root {
   --radius: 0.75rem;
 
   /* Canvas */
-  --background: oklch(0.984 0.003 247.9); /* #F8FAFC bg-main */
+  --background: oklch(0.978 0 0); /* #F8F8F8 */
   --surface: oklch(1 0 0); /* #FFFFFF */
-  --surface-subtle: oklch(0.968 0.007 247.9); /* #F1F5F9 */
+  --surface-subtle: oklch(0.955 0 0); /* #F0F0F0 */
 
   /* Text */
-  --foreground: oklch(0.208 0.04 265.8); /* #0F172A */
-  --muted-foreground: oklch(0.554 0.041 257.4); /* #64748B */
-  --text-muted: oklch(0.711 0.035 256.8); /* #94A3B8 */
+  --foreground: oklch(0.182 0.008 285); /* #14141A тёплый тёмный */
+  --muted-foreground: oklch(0.552 0 0); /* #757575 */
+  --text-muted: oklch(0.785 0 0); /* #BCBCBC */
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.208 0.04 265.8);
+  --card-foreground: oklch(0.182 0.008 285);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.208 0.04 265.8);
+  --popover-foreground: oklch(0.182 0.008 285);
 
-  /* Accent */
-  --primary: oklch(0.456 0.249 273.1); /* #382DDD */
-  --primary-foreground: oklch(0.984 0.003 247.9);
-  --accent-hover: oklch(0.387 0.214 273); /* #2B21B3 */
-  --accent: oklch(0.958 0.021 288.9); /* #F0EFFF accent-soft */
-  --accent-foreground: oklch(0.456 0.249 273.1);
-  --accent-soft: oklch(0.958 0.021 288.9);
-  --accent-mono: oklch(0.446 0.037 257.3); /* #475569 */
+  /* Primary Accent: Lime #CDF22B */
+  --primary: oklch(0.908 0.222 128.5); /* #CDF22B */
+  --primary-foreground: oklch(0.182 0.008 285); /* Тёмный текст на лаймовом */
+  --accent-hover: oklch(0.835 0.210 128.5); /* Сочный ховер для лайма */
+  --accent: oklch(0.965 0.05 128.5); /* Очень нежный софт-лайм */
+  --accent-foreground: oklch(0.182 0.008 285);
+  --accent-soft: oklch(0.965 0.05 128.5);
+  --accent-mono: oklch(0.35 0 0);
 
-  --secondary: oklch(0.968 0.007 247.9);
-  --secondary-foreground: oklch(0.208 0.04 265.8);
-  --muted: oklch(0.968 0.007 247.9);
+  /* Brand Blue #1E45FB (Заведён в палитру) */
+  --brand-blue: oklch(0.485 0.285 264.5); /* #1E45FB */
+
+  --secondary: oklch(0.94 0 0);
+  --secondary-foreground: oklch(0.182 0.008 285);
+  --muted: oklch(0.94 0 0);
 
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.9);
+  --destructive-foreground: oklch(0.978 0 0);
 
-  /* Borders */
-  --border: oklch(0.208 0.04 265.8 / 0.08);
-  --border-hover: oklch(0.456 0.249 273.1 / 0.35);
-  --input: oklch(0.208 0.04 265.8 / 0.08);
-  --ring: oklch(0.456 0.249 273.1);
+  /* Borders & Inputs */
+  --border: oklch(0.785 0 0 / 0.4); /* #BCBCBC с лёгкой прозрачностью */
+  --border-hover: oklch(0.182 0.008 285 / 0.4);
+  --input: oklch(0.785 0 0 / 0.4);
+  --ring: oklch(0.908 0.222 128.5);
 
   /* Dark inversion plates */
-  --invert: oklch(0.208 0.04 265.8);
-  --invert-foreground: oklch(0.984 0.003 247.9);
-  --invert-border: oklch(1 0 0 / 0.1);
+  --invert: oklch(0.182 0.008 285); /* #14141A */
+  --invert-foreground: oklch(0.978 0 0);
+  --invert-border: oklch(1 0 0 / 0.12);
 
-  --chart-1: oklch(0.456 0.249 273.1);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.446 0.037 257.3);
-  --chart-4: oklch(0.711 0.035 256.8);
-  --chart-5: oklch(0.554 0.041 257.4);
+  --chart-1: oklch(0.908 0.222 128.5);
+  --chart-2: oklch(0.485 0.285 264.5);
+  --chart-3: oklch(0.552 0 0);
+  --chart-4: oklch(0.785 0 0);
+  --chart-5: oklch(0.182 0.008 285);
+
   --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.208 0.04 265.8);
-  --sidebar-primary: oklch(0.456 0.249 273.1);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.9);
-  --sidebar-accent: oklch(0.958 0.021 288.9);
-  --sidebar-accent-foreground: oklch(0.456 0.249 273.1);
-  --sidebar-border: oklch(0.208 0.04 265.8 / 0.08);
-  --sidebar-ring: oklch(0.456 0.249 273.1);
+  --sidebar-foreground: oklch(0.182 0.008 285);
+  --sidebar-primary: oklch(0.908 0.222 128.5);
+  --sidebar-primary-foreground: oklch(0.182 0.008 285);
+  --sidebar-accent: oklch(0.965 0.05 128.5);
+  --sidebar-accent-foreground: oklch(0.182 0.008 285);
+  --sidebar-border: oklch(0.785 0 0 / 0.3);
+  --sidebar-ring: oklch(0.908 0.222 128.5);
 }
-
 
 @layer base {
   * {
@@ -162,4 +166,3 @@
     letter-spacing: -0.02em;
   }
 }
-

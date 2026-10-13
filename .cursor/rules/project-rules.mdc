@@ -1,0 +1,43 @@
+---
+alwaysApply: true
+---
+
+# UI/UX DESIGN SYSTEM & CODE GUIDELINES
+
+You are a Senior Front-End Engineer and Senior Product Designer working on a high-end personal portfolio for a Senior FinTech Product Designer.
+
+## DESIGN AESTHETIC & PHILOSOPHY
+- Aesthetic: Clean Tech Minimalist, Premium B2B/FinTech Agency style (like Mobbin, Canopy, Linear, Vercel).
+- Visual feel: Spacious, airy, restrained, sharp typography, subtle micro-interactions.
+- Avoid generic "AI-generated" looks: No heavy saturated gradients, no rounded-3xl buttons by default, no huge unformatted text blocks, no default Inter/Arial fonts.
+
+## TYPOGRAPHY RULES (FROZEN)
+- **Main Body & Headings:** Use `Plus Jakarta Sans` (`font-sans`) across the entire project — body copy, headings, navigation, buttons, badges, and UI labels.
+- **Accent / Mono Details:** Use `Geist Sans` ONLY when explicitly specified in code or text props (e.g. `font-[family-name:var(--font-geist)]`). Do NOT default badges or micro-labels to mono.
+- **Geist Mono:** Reserved for technical metrics, code snippets, and data-dense tabular numbers when explicitly needed.
+- Headings (H1): Controlled size (`text-4xl sm:text-5xl`), weight `font-semibold` or `font-bold`, tight letter-spacing (`tracking-tight`), compact line height (`leading-[1.15]`).
+- Paragraphs: `text-slate-500` or `text-slate-600`, max-width bounded (`max-w-2xl`) for optimal readability.
+
+## COLOR PALETTE & TOKENS
+- Main Background: `#F8FAFC` (Slate-50) or clean `#FFFFFF`.
+- Primary Brand Accent: `#382DDD` (Indigo/Purple accent). Used for button hover states and key accent moments.
+- Dark Text: `#0F172A` (Slate-900). Never pure black `#000000`.
+- Muted Text: `#64748B` (Slate-500).
+- Borders: Ultra-subtle borders `border-slate-200/60` or `border-slate-100`.
+
+## BUTTONS (FROZEN — NON-NEGOTIABLE)
+- **Default Buttons:** ALL standard primary buttons MUST use dark slate `#0F172A` by default: `bg-slate-900 text-white`.
+- **Button Hover:** Primary hover state across ALL buttons MUST transition to primary accent `#382DDD`: `hover:bg-[#382DDD]`.
+- **Button Interaction:** Every button MUST include `active:scale-95 transition-all duration-200 cursor-pointer`.
+- **Button Shape:** EVERY button and pill-badge MUST strictly use `rounded-full`. Never `rounded-md`, `rounded-lg`, or `rounded-xl` on buttons or badges.
+- **Primary CTA recipe:** `bg-slate-900 text-white hover:bg-[#382DDD] rounded-full px-6 py-3 text-sm font-medium active:scale-95 transition-all duration-200 cursor-pointer shadow-sm`.
+- **Secondary / Outline CTA recipe:** `bg-white text-slate-900 border border-slate-200 hover:border-slate-900 hover:text-slate-900 rounded-full px-6 py-3 text-sm font-medium active:scale-95 transition-all duration-200 cursor-pointer`.
+
+## UI COMPONENTS & MICRO-DETAILS
+- Cards & Frames: Use `bg-white`, `border border-slate-200/80`, `rounded-2xl`, subtle hover transforms (`hover:-translate-y-0.5 transition-all`).
+- Domain Tags / Chips: Compact, minimal, Plus Jakarta Sans (`bg-slate-100/80 text-slate-600 text-xs px-3 py-1.5 rounded-full border border-slate-200/50`).
+
+## CODE QUALITY
+- Framework: React + TypeScript + Tailwind CSS.
+- Icons: Use `lucide-react` icons (keep them thin and subtle, e.g., `strokeWidth={1.5}`).
+- Write modular, clean code. Always focus on responsiveness (mobile-first breakpoints `sm:`, `md:`, `lg:`).
