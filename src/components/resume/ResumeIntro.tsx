@@ -34,8 +34,8 @@ export function ResumeIntro() {
       {/* Белая кнопка скачивания без границы с серым ховером */}
       <div>
         <a
-          href="/Daria_Borisenkova_Resume.pdf" 
-          download="Daria_Borisenkova_Resume.pdf"
+          href="/Dariia_Borisenkova_CV.pdf" 
+          download="Dariia_Borisenkova_CV.pdf"
           className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white hover:bg-gray-200/80 text-[#111827] text-sm font-medium transition-colors duration-200 cursor-pointer w-fit border-none shadow-none"
         >
           <Download className="w-4 h-4 text-[#4B5563]" />

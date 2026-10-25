@@ -35,7 +35,7 @@ const experiences = [
         ]
       },
       {
-        title: "Мобильный личный кабинет НПФ",
+        title: "Мобильный личный кабинет «НПФ Эволюция»",
         points: [
           {
             text: "Провела аудит CJM и переработала главный экран и ключевые мобильные сценарии, упростив поиск данных и переход к программе долгосрочных сбережений."
@@ -113,7 +113,7 @@ export function ResumeProjects() {
 
             {"projects" in exp ? (
               <div className="flex flex-col gap-5 mt-2">
-                {exp.projects.map((project, projectIndex) => (
+                {exp.projects!.map((project, projectIndex) => (
                   <div key={projectIndex} className="flex flex-col gap-2">
                     <h4 className="text-lg sm:text-xl font-semibold text-[#111827] tracking-tight">
                       {project.title}

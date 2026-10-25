@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import { ArrowUpRight } from "lucide-react";
-import { motion, useScroll, useTransform, Variants } from "framer-motion";
+import React from "react";
+import { createPortal } from "react-dom";
+import { motion, Variants } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 
 interface Project {
@@ -10,12 +10,13 @@ interface Project {
   metrics?: string[];
   badge?: string;
   headline: string;
-  description: string;
+  description?: string;
   tags: string[];
 }
 
 const fixOrphans = (text: string): string => {
   if (!text) return "";
+
   return text.replace(
     /(\s|^)(в|во|без|до|из|к|ко|на|по|о|об|обо|от|при|с|со|у|за|над|под|про|для|и|а|но|или)\s+/gi,
     "$1$2\u00A0"
@@ -26,56 +27,48 @@ const projectsData: Project[] = [
   {
     id: "delo-zhizni",
     title: "Дело Жизни",
-    image: "/projects/delo-zhizni.jpg",
+    image: "/projects/DZ-preview-dark.png",
     metrics: ["-48% error rate", "3d → 2h issuance"],
-    headline: "Цифровая платформа страхового бизнеса.",
+    headline: "Цифровая экосистема страхования",
     description:
-      "Оцифровала ручные процессы и спроектировала единую экосистему личных кабинетов для клиентов и агентов.",
-    tags: ["InsurTech", "Enterprise B2B", "B2С", "Process Automation"],
+      "Оцифровала ручные процессы и спроектировала единый портал для агентов и клиентов, сократив выпуск полиса с 3 дней до 2 часов.",
+    tags: ["InsurTech", "Web", "Enterprise B2B", "B2С"],
   },
   {
     id: "npf-evolutsiya",
     title: "НПФ Эволюция",
-    image: "/projects/npf-evolutsiya.jpg",
+    image: "/projects/EVO-preview-2.png",
     metrics: ["1.8x conversion", "-30% support load"],
-    headline: "Перезапуск мобильного приложения фонда.",
+    headline: "Перезапуск мобильного приложения фонда",
     description:
-      "Упростила ключевые сценарии, увеличив конверсию в целевое действие и рост доверия к продукту.",
-    tags: ["FinTech", "Mobile App", "Product Strategy"],
+      "Проработала ключевые сценарии: увеличила конверсию в программу сбережений в 1.8 раза и снизила нагрузку на поддержку на 30%.",
+    tags: ["FinTech", "Mobile App", "B2C"],
   },
   {
     id: "qupro-qseller",
     title: "Qupro / Qseller",
-    image: "/projects/qupro-qseller.jpg",
+    image: "/projects/Qupro-preview.png",
     badge: "Ещё пишу кейс",
-    headline: "Multi-role экосистема для покупки и продажи автомобилей.",
-    description:
-      "Выстроила единую логику для покупателей, продавцов и бизнеса, связав несколько платформ и десятки сценариев в целостный пользовательский опыт.",
-    tags: ["AutoTech", "Marketplace", "Multi-role Systems"],
+    headline: "Автомобильный маркетплейс с B2B и B2C кабинетами",
+    tags: ["AutoTech", "Web", "Mobile App", "B2B", "B2C"],
   },
   {
     id: "travelmania",
     title: "Travelmania",
-    image: "/projects/travelmania.jpg",
+    image: "/projects/TM-preview.png",
     badge: "Ещё пишу кейс",
-    headline: "Двухсторонняя TravelTech-экосистема.",
-    description:
-      "Систематизировала сценарии поиска, бронирования и конструктора маршрутов, выстроив понятный пользовательский путь для туристов и гидов.",
-    tags: ["TravelTech", "Marketplace", "UX Architecture"],
+    headline: "Платформа бронирования экскурсий по всему миру",
+    tags: ["TravelTech", "Web", "B2B", "B2C"],
   },
   {
     id: "lifescape",
     title: "Lifescape",
-    image: "/projects/lifescape.jpg",
+    image: "/projects/Lifescape-preview.png",
     badge: "Ещё пишу кейс",
-    headline: "HealthTech-продукт 0→1 для нескольких пользовательских сегментов.",
-    description:
-      "С нуля сформировала продуктовую стратегию, CJM и ключевые E2E-сценарии платформы в плотной связке с C-level и аналитиками.",
-    tags: ["HealthTech", "0→1", "Product Strategy"],
+    headline: "Приложение персонального подбора лечебного питания",
+    tags: ["HealthTech", "Mobile App", "B2C"],
   },
 ];
-
-const ITEM_HEIGHT = 40;
 
 const containerVariants: Variants = {
   hidden: {},
@@ -102,165 +95,160 @@ const cardVariants: Variants = {
   },
 };
 
+const projectsWithPendingDescription = [
+  "qupro-qseller",
+  "travelmania",
+  "lifescape",
+];
+
 export function ProjectsSection() {
-  const [activeId, setActiveId] = useState<string>(projectsData[0].id);
-  const sectionRef = useRef<HTMLElement>(null);
-  const cardRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-
-  const activeIndex = projectsData.findIndex((p) => p.id === activeId);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start center", "end end"],
+  const [cursorPosition, setCursorPosition] = React.useState({
+    x: 0,
+    y: 0,
   });
-  const sparkTranslateY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const triggerPoint = 200;
-      let currentActive = projectsData[0].id;
+  const [isDescriptionVisible, setIsDescriptionVisible] =
+    React.useState(false);
 
-      for (const project of projectsData) {
-        const el = cardRefs.current[project.id];
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= triggerPoint) {
-            currentActive = project.id;
-          }
-        }
-      }
+  const [activeProjectId, setActiveProjectId] = React.useState<
+    string | null
+  >(null);
 
-      setActiveId(currentActive);
-    };
+  const [isMounted, setIsMounted] = React.useState(false);
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-
-    return () => window.removeEventListener("scroll", handleScroll);
+  React.useEffect(() => {
+    setIsMounted(true);
   }, []);
 
-  const scrollToProject = (id: string) => {
-    const el = cardRefs.current[id];
-    if (el) {
-      const offset = 80;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = el.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
+  const handleImageMouseMove = (
+    event: React.MouseEvent<HTMLDivElement>,
+    projectId: string
+  ) => {
+    setCursorPosition({
+      x: event.clientX,
+      y: event.clientY,
+    });
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
+    setActiveProjectId(projectId);
   };
 
+  const handleImageMouseEnter = (projectId: string) => {
+    setActiveProjectId(projectId);
+    setIsDescriptionVisible(true);
+  };
+
+  const handleImageMouseLeave = () => {
+    setIsDescriptionVisible(false);
+    setActiveProjectId(null);
+  };
+
+  const showDescription =
+    isMounted &&
+    isDescriptionVisible &&
+    activeProjectId !== null &&
+    projectsWithPendingDescription.includes(activeProjectId);
+
   return (
-    <section 
-      id="projects" 
-      ref={sectionRef} 
+    <section
+      id="projects"
       className="relative w-full py-10 sm:py-12 md:py-16 px-4 sm:px-8 md:px-12 lg:px-16 bg-transparent scroll-mt-20"
     >
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6 lg:gap-14 items-start">
-        
-        {/* Мобильный заголовок */}
-        <motion.div 
+      <div className="max-w-7xl mx-auto">
+        {/* Заголовок секции */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="flex lg:hidden flex-col items-start text-left gap-2 w-full"
+          className="flex flex-col items-start text-left md:items-center md:text-center gap-2 lg:gap-4 w-full mb-6 md:mb-10 lg:mb-14"
         >
           <span className="text-[12px] font-semibold tracking-wider uppercase text-[#1E45FB] font-sans">
             Проекты
           </span>
+
           <h2 className="text-[24px] leading-[33px] tracking-[-0.6px] md:text-[36px] md:leading-[45px] md:tracking-[-0.9px] font-bold text-[#111827]">
             Избранные кейсы
           </h2>
         </motion.div>
 
-        {/* Левая липкая колонка (Desktop) */}
-        <div className="hidden lg:flex lg:sticky lg:top-24 w-60 shrink-0 flex-col gap-4 z-10">
-          <span className="text-[12px] font-semibold tracking-wider uppercase text-[#1E45FB] font-sans pl-7">
-            Избранные кейсы
-          </span>
-
-          <div className="relative flex flex-col overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
-            <motion.div
-              className="absolute left-[11px] w-1.5 h-1.5 rounded-full bg-[#1E45FB] z-20"
-              animate={{
-                top: activeIndex * ITEM_HEIGHT + 17,
-              }}
-              transition={{ type: "spring", stiffness: 350, damping: 30 }}
-            />
-
-            <motion.div
-              className="absolute left-[13px] w-[1px] bg-gray-200 pointer-events-none overflow-hidden z-10"
-              animate={{
-                top: activeIndex * ITEM_HEIGHT + 30,
-                bottom: 0,
-              }}
-              transition={{ type: "spring", stiffness: 350, damping: 30 }}
-            >
-              <motion.div
-                style={{ y: sparkTranslateY }}
-                className="w-full h-24 bg-gradient-to-b from-transparent via-[#1E45FB] to-transparent"
-              />
-            </motion.div>
-
-            {projectsData.map((project) => {
-              const isActive = activeId === project.id;
-              return (
-                <button
-                  key={project.id}
-                  onClick={() => scrollToProject(project.id)}
-                  style={{ height: `${ITEM_HEIGHT}px` }}
-                  className={`group relative flex items-center pl-7 pr-3 rounded-xl text-sm transition-colors duration-300 whitespace-nowrap text-left ${
-                    isActive
-                      ? "text-[#111827] font-semibold"
-                      : "text-[#9CA3AF] font-medium hover:text-[#4B5563]"
-                  }`}
-                >
-                  <span>{project.title}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Правая колонка с карточками */}
-        <motion.div 
+        {/* Бенто-сетка */}
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
-          className="flex-1 w-full flex flex-col gap-6 md:gap-8"
+          className="w-full grid grid-cols-1 lg:grid-cols-6 gap-6 md:gap-8 lg:gap-x-8 lg:gap-y-12 items-stretch"
         >
           {projectsData.map((project) => {
+            const isFeatured =
+              project.id === "delo-zhizni" ||
+              project.id === "npf-evolutsiya";
+
+            const hasPendingDescription =
+              projectsWithPendingDescription.includes(project.id);
+
             return (
               <Link
                 key={project.id}
                 to="/projects/$projectId"
                 params={{ projectId: project.id }}
-                className="block no-underline"
+                className={`block no-underline min-w-0 h-full text-left ${
+                  isFeatured ? "lg:col-span-3" : "lg:col-span-2"
+                }`}
               >
                 <motion.div
                   variants={cardVariants}
-                  ref={(el) => {
-                    cardRefs.current[project.id] = el;
-                  }}
-                  className="group relative bg-white rounded-[24px] p-5 sm:p-6 md:p-8 border border-transparent shadow-none transition-all duration-300 ease-out md:hover:border-[#D1F366] md:hover:scale-[1.012] flex flex-col gap-3.5 sm:gap-5 md:gap-6 cursor-pointer"
+                  className="group relative bg-transparent p-0 m-0 border-none shadow-none flex flex-col h-full cursor-pointer"
                 >
-                  {/* Шапка карточки */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                    <h3 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
-                      {project.title}
-                    </h3>
+                  {/* Изображение */}
+                  <div
+                    className="relative w-full shrink-0 rounded-[24px] overflow-hidden"
+                    onMouseEnter={
+                      hasPendingDescription
+                        ? () => handleImageMouseEnter(project.id)
+                        : undefined
+                    }
+                    onMouseMove={
+                      hasPendingDescription
+                        ? (event) =>
+                            handleImageMouseMove(event, project.id)
+                        : undefined
+                    }
+                    onMouseLeave={
+                      hasPendingDescription
+                        ? handleImageMouseLeave
+                        : undefined
+                    }
+                  >
+                    <div
+                      className={`w-full rounded-[24px] overflow-hidden relative bg-transparent ${
+                        isFeatured ? "aspect-[16/9]" : "aspect-[16/9]"
+                      }`}
+                    >
+                      {project.image ? (
+                        <img
+                          src={project.image}
+                          alt={project.title}
+                          className={`block w-full h-full rounded-[24px] transition-transform duration-500 ${
+                            isFeatured
+                              ? "object-cover object-center md:group-hover:scale-[1.02]"
+                              : "object-contain object-center md:group-hover:scale-[1.02]"
+                          }`}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full border border-gray-200/60 rounded-[24px] flex items-center justify-center text-center p-4">
+                          <span className="text-[#9CA3AF] font-medium text-xs sm:text-sm">
+                            [ Скриншот личного кабинета / интерфейса ]
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
-                    {/* Метрики или Плоский Бадж */}
-                    <div className="flex items-center gap-2 overflow-x-auto scrollbar-none flex-nowrap shrink-0">
+                    {/* Бейджи и метрики поверх изображения */}
+                    <div className="absolute top-3 right-3 flex items-center gap-2 overflow-x-auto scrollbar-none flex-nowrap z-20 pointer-events-none">
                       {project.badge && (
-                        <span className="px-3.5 py-1 text-[11px] sm:text-xs font-medium text-[#111827] bg-[#F3F4F6] rounded-full tracking-wide whitespace-nowrap">
+                        <span className="px-3.5 py-1 text-[11px] sm:text-xs font-medium text-[#111827] bg-white/90 backdrop-blur-md rounded-full shadow-sm tracking-wide whitespace-nowrap">
                           {project.badge}
                         </span>
                       )}
@@ -270,7 +258,7 @@ export function ProjectsSection() {
                           {project.metrics.map((metric) => (
                             <span
                               key={metric}
-                              className="px-3 py-1 text-[11px] sm:text-xs font-medium text-white bg-[#111827] rounded-full tracking-wide whitespace-nowrap"
+                              className="px-3 py-1 text-[11px] sm:text-xs font-medium text-white bg-[#111827] backdrop-blur-md rounded-full shadow-sm tracking-wide whitespace-nowrap"
                             >
                               {metric}
                             </span>
@@ -280,54 +268,36 @@ export function ProjectsSection() {
                     </div>
                   </div>
 
-                  {/* Контейнер превью */}
-                  <div 
-                    className="w-full rounded-xl overflow-hidden relative bg-gray-50 h-[180px] sm:h-[240px] md:h-[280px] lg:h-[310px]"
-                    style={{
-                      WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 78%, rgba(0,0,0,0) 100%)",
-                      maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 78%, rgba(0,0,0,0) 100%)",
-                    }}
-                  >
-                    {project.image ? (
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        className="w-full h-full object-cover object-top transition-transform duration-500 md:group-hover:scale-[1.01]"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full border border-gray-200/60 rounded-xl flex items-center justify-center text-center p-4">
-                        <span className="text-[#9CA3AF] font-medium text-xs sm:text-sm">
-                          [ Скриншот личного кабинета / интерфейса ]
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  {/* Текстовый блок */}
+                  <div className="w-full min-w-0 flex flex-col gap-3 pt-4 pb-1 px-0 text-left">
+                    <div className="w-full min-w-0 flex flex-col gap-1.5 md:gap-4 lg:gap-1.5">
+                      <span className="text-xs sm:text-sm text-[#9CA3AF] font-medium tracking-normal p-0 m-0">
+                        {project.title}
+                      </span>
 
-                  {/* Нижний блок: Текст + Теги + Кнопка */}
-                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-5">
-                    <div className="flex-1 max-w-2xl flex flex-col gap-2.5 sm:gap-3">
-                      <p className="text-sm sm:text-base leading-relaxed font-sans text-[#4B5563]">
-                        <strong className="font-bold text-[#111827] pr-1.5 font-sans">
-                          {fixOrphans(project.headline)}
-                        </strong>
-                        <span>{fixOrphans(project.description)}</span>
-                      </p>
+                      <h3 className="w-full text-xl sm:text-2xl font-bold text-[#111827] tracking-tight p-0 m-0">
+                        {fixOrphans(project.headline)}
+                      </h3>
 
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-[#9CA3AF] font-medium pt-0.5">
-                        {project.tags.map((tag, i) => (
-                          <React.Fragment key={tag}>
-                            {i > 0 && <span className="text-gray-300">•</span>}
-                            <span className="hover:text-[#4B5563] transition-colors">
-                              {tag}
-                            </span>
-                          </React.Fragment>
-                        ))}
-                      </div>
+                      {project.description && (
+                        <p className="w-full text-sm sm:text-base leading-relaxed font-sans text-[#4B5563] p-0 m-0 font-normal break-words pt-0.5">
+                          <span>{fixOrphans(project.description)}</span>
+                        </p>
+                      )}
                     </div>
 
-                    <div className="hidden md:flex w-10 h-10 rounded-full bg-gray-100 text-[#111827] items-center justify-center shrink-0 transition-all duration-300 ease-out group-hover:bg-[#1E45FB] group-hover:text-white shadow-none">
-                      <ArrowUpRight className="w-4 h-4" strokeWidth={2.2} />
+                    <div className="w-full flex flex-wrap items-center gap-2 text-xs text-[#9CA3AF] font-medium pt-0.5">
+                      {project.tags.map((tag, i) => (
+                        <React.Fragment key={tag}>
+                          {i > 0 && (
+                            <span className="text-gray-300">•</span>
+                          )}
+
+                          <span className="hover:text-[#4B5563] transition-colors">
+                            {tag}
+                          </span>
+                        </React.Fragment>
+                      ))}
                     </div>
                   </div>
                 </motion.div>
@@ -335,8 +305,23 @@ export function ProjectsSection() {
             );
           })}
         </motion.div>
-
       </div>
+
+      {/* Плашка вне карточек, чтобы не обрезалась */}
+      {showDescription &&
+        createPortal(
+          <div
+            aria-hidden="true"
+            className="pointer-events-none fixed z-[9999] rounded-full bg-[#d1f366] px-4 py-2 text-sm font-medium leading-tight text-[#111827] shadow-sm whitespace-nowrap"
+            style={{
+              left: cursorPosition.x + 12,
+              top: cursorPosition.y + 12,
+            }}
+          >
+            Описание в процессе
+          </div>,
+          document.body
+        )}
     </section>
   );
 }
